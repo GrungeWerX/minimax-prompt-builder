@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Minimax Prompt Builder</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div class="brand-text">
+        <span class="brand-title">Minimax Prompt Builder</span>
+        <span class="brand-sub">full-reference video prompts, without the typing</span>
+      </div>
+    </div>
+
+    <input id="projectName" class="project-name-input" type="text" value="Untitled Prompt" spellcheck="false" />
+
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" id="btnNew" title="Start a blank project">New</button>
+      <button class="btn btn-ghost" id="btnSample" title="Load a filled-in example">Load Sample</button>
+      <button class="btn btn-ghost" id="btnLoad" title="Open a saved project">Open…</button>
+      <button class="btn btn-ghost" id="btnSave" title="Save this project">Save</button>
+      <button class="btn btn-icon" id="btnTheme" title="Toggle light / dark">◐</button>
+      <button class="btn btn-primary" id="btnCompile">Compile ▸</button>
+    </div>
+  </header>
+
+  <!-- ============ MAIN BODY ============ -->
+  <div class="app-body">
+
+    <!-- LEFT: reference library -->
+    <aside class="ref-rail">
+      <div class="ref-rail-header">
+        <h2>Reference Library</h2>
+        <button class="i-btn" data-help="library">i</button>
+      </div>
+      <p class="ref-rail-hint">Add a card for anything you'll refer back to. Each one gets a token you can drop into any field below.</p>
+
+      <div class="ref-add-row" id="refAddRow"><!-- +Subject / +Picture / +Video / +Audio buttons injected here --></div>
+
+      <div class="ref-list" id="refList">
+        <!-- reference cards injected here -->
+      </div>
+
+      <div class="speaker-block">
+        <div class="speaker-header">
+          <h3>Speakers</h3>
+          <button class="i-btn" data-help="speakers">i</button>
+        </div>
+        <div class="speaker-chip-row" id="speakerChipRow"></div>
+        <button class="btn btn-ghost btn-small" id="btnAddSpeaker">+ New Speaker</button>
+      </div>
+    </aside>
+
+    <!-- RIGHT: tabbed workspace -->
+    <main class="workspace">
+
+      <nav class="tabbar" id="tabbar">
+        <button class="tab active" data-tab="summary">1 · Task &amp; Summary</button>
+        <button class="tab" data-tab="retention">2 · Retention Analysis</button>
+        <button class="tab" data-tab="detailed">3 · Detailed Description</button>
+        <button class="tab" data-tab="sound">4 · Soundscape &amp; Music</button>
+      </nav>
+
+      <!-- ---- TAB: Task & Summary ---- -->
+      <section class="tab-panel active" id="panel-summary">
+        <div class="panel-header">
+          <h2>Task Type</h2>
+          <button class="i-btn" data-help="tasktype">i</button>
+        </div>
+        <div class="task-chip-row" id="taskChipRow"></div>
+        <div class="prefix-preview" id="prefixPreview">[ ]</div>
+
+        <div class="panel-header panel-header-spaced">
+          <h2>Summary</h2>
+          <button class="i-btn" data-help="summary">i</button>
+        </div>
+        <div class="chip-toolbar" data-target="summaryText"></div>
+        <textarea id="summaryText" class="big-textarea" rows="5"
+          placeholder="One short paragraph describing the target video and how your references relate to it..."></textarea>
+      </section>
+
+      <!-- ---- TAB: Retention Analysis ---- -->
+      <section class="tab-panel" id="panel-retention">
+        <div class="panel-header">
+          <h2>Retention Analysis</h2>
+          <button class="i-btn" data-help="retention">i</button>
+        </div>
+        <p class="panel-hint">One row per reference — describe how it's actually preserved, changed, or referenced.</p>
+        <div class="retention-list" id="retentionList"><!-- rows injected --></div>
+        <p class="empty-hint" id="retentionEmptyHint">Add reference cards on the left to see rows here.</p>
+      </section>
+
+      <!-- ---- TAB: Detailed Description ---- -->
+      <section class="tab-panel" id="panel-detailed">
+        <div class="panel-header">
+          <h2>Style Opening</h2>
+          <button class="i-btn" data-help="styleopening">i</button>
+        </div>
+        <div class="chip-toolbar" data-target="styleOpeningText"></div>
+        <textarea id="styleOpeningText" class="big-textarea" rows="2"
+          placeholder="1-2 sentences establishing the overall visual style, before [Shot 1]..."></textarea>
+
+        <div class="panel-header panel-header-spaced">
+          <h2>Shots</h2>
+          <button class="i-btn" data-help="detailed_description">i</button>
+          <button class="btn btn-ghost btn-small" id="btnCheatSheet" title="Camera motion, cuts, on-screen text, group speech, voiceover">Camera &amp; Format Cheat Sheet</button>
+          <div class="word-counter" id="wordCounter">0 words</div>
+        </div>
+        <div class="shots-list" id="shotsList"><!-- shot cards injected --></div>
+        <button class="btn btn-secondary" id="btnAddShot">+ Add Shot</button>
+      </section>
+
+      <!-- ---- TAB: Soundscape & Music ---- -->
+      <section class="tab-panel" id="panel-sound">
+        <div class="panel-header">
+          <h2>Overall Soundscape</h2>
+          <button class="i-btn" data-help="overall_soundscape">i</button>
+        </div>
+        <div class="chip-toolbar" data-target="soundscapeText"></div>
+        <textarea id="soundscapeText" class="big-textarea" rows="3"
+          placeholder="Ambience and physical sound across the whole video (room tone, wind, footsteps)..."></textarea>
+
+        <div class="panel-header panel-header-spaced">
+          <h2>Non-Diegetic Music</h2>
+          <button class="i-btn" data-help="non_diegetic_music">i</button>
+        </div>
+        <div class="chip-toolbar" data-target="musicText"></div>
+        <textarea id="musicText" class="big-textarea" rows="3"
+          placeholder="Audience-only background score: instrumentation, tempo, dynamics. Write N/A if none."></textarea>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ MODALS ============ -->
+
+<div class="modal-overlay" id="infoModalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="infoModalTitle">Help</h3>
+      <button class="modal-close" data-close="infoModalOverlay">×</button>
+    </div>
+    <div class="modal-body" id="infoModalBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="loadModalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Open a Saved Project</h3>
+      <button class="modal-close" data-close="loadModalOverlay">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="projectListBody" class="project-list">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="compileModalOverlay">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h3>Compiled Prompt</h3>
+      <button class="modal-close" data-close="compileModalOverlay">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="compileWarnings" class="warning-box" style="display:none;"></div>
+      <textarea id="compileOutput" class="compile-output" readonly spellcheck="false"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btnDownloadTxt">Download .txt</button>
+      <button class="btn btn-primary" id="btnCopyCompiled">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
